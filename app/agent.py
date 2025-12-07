@@ -13,7 +13,7 @@ import weaviate
 # --- Configuration ---
 WEAVIATE_URL = os.getenv("WEAVIATE_URL", "http://weaviate:8080")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-LLM_MODEL = "tinyllama"
+LLM_MODEL = "smollm2:1.7b"
 
 # --- 1. Vector Store Setup ---
 embeddings = OllamaEmbeddings(
@@ -64,11 +64,36 @@ def generate(state: AgentState):
     print("---GENERATING---")
     llm = ChatOllama(model=LLM_MODEL, base_url=OLLAMA_BASE_URL, temperature=0)
     
-    template = """Answer the question based only on the following context:
+    template = """
+    You are an AI assistant designed to answer based on the provided context.
+
+    Follow these rules:
+
+    Rule 1:
+    If the user greeting is like: hi, hello, hey, good morning, good evening, how are you,
+    reply with a friendly greeting. Example greeting response (do NOT repeat this text, use your own):
+    "Hello! I'm doing great, how can I assist you today?"
+
+    Rule 2:
+    If the answer exists in the context, respond using ONLY the context.
+
+    Rule 3:
+    If the context does not contain the answer, respond with:
+    "I don't know the answer to that based on the uploaded documents."
+    You may optionally add a short general polite sentence, without adding facts.
+
+    Rule 4:
+    Keep answers short, natural, and conversational. No robotic tone.
+
+    Context:
     {context}
-    
-    Question: {question}
+
+    User:
+    {question}
+
+    Assistant Response:
     """
+
     prompt = PromptTemplate.from_template(template)
     chain = prompt | llm | StrOutputParser()
     

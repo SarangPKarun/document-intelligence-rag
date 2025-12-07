@@ -1,0 +1,1 @@
+docker exec -it document-intelligence-rag-ollama-1 ollama pull smollm2:1.7b
