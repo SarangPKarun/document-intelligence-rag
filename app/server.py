@@ -34,3 +34,15 @@ async def ask_question(request: QueryRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.get("/test")
+async def test():
+    """Test the agent workflow working or not."""
+    try:
+        return {"message": "Agent workflow is working."}
+    except Exception as e:
+        logging.error(f"Error during test: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

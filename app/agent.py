@@ -8,10 +8,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langgraph.graph import StateGraph, END
 
+import weaviate
+
 # --- Configuration ---
 WEAVIATE_URL = os.getenv("WEAVIATE_URL", "http://weaviate:8080")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-LLM_MODEL = "llama3"
+LLM_MODEL = "tinyllama"
 
 # --- 1. Vector Store Setup ---
 embeddings = OllamaEmbeddings(
@@ -20,10 +22,11 @@ embeddings = OllamaEmbeddings(
 )
 
 def get_vectorstore():
-    return Weaviate.from_existing_index(
-        embedding=embeddings,
+    return Weaviate(
+        client=weaviate.Client(url=WEAVIATE_URL),
         index_name="Document",
-        weaviate_url=WEAVIATE_URL,
+        text_key="text",
+        embedding=embeddings,
         by_text=False # relying on vector search
     )
 
