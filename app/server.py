@@ -31,6 +31,16 @@ async def ingest_document(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/delete_context")
+async def delete_context():
+    """Clear all ingested documents and reset context."""
+    from app.agent import delete_all_context
+    try:
+        result = delete_all_context()
+        return {"message": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/ask", response_model=QueryResponse)
 async def ask_question(request: QueryRequest):
     """Run the agent workflow."""

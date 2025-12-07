@@ -7,6 +7,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const chatHistory = document.getElementById('chat-history');
     const clearChatBtn = document.getElementById('clear-chat');
+    const deleteContextBtn = document.getElementById('delete-context-btn');
+
+    // --- Delete Context Logic ---
+    if (deleteContextBtn) {
+        deleteContextBtn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to delete all context? This cannot be undone.')) return;
+
+            showStatus('Deleting context...', 'info');
+            try {
+                const response = await fetch('/delete_context', { method: 'POST' });
+                if (response.ok) {
+                    showStatus('Context deleted successfully.', 'success');
+                } else {
+                    throw new Error('Failed to delete context');
+                }
+            } catch (error) {
+                console.error(error);
+                showStatus('Error deleting context.', 'error');
+            }
+        });
+    }
 
     // --- File Upload Logic ---
     dropZone.addEventListener('click', () => fileInput.click());

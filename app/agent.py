@@ -44,6 +44,14 @@ def ingest_text(text: str, source: str):
     )
     return f"Ingested {len(docs)} chunks from {source}."
 
+def delete_all_context():
+    """Clears the entire Weaviate 'Document' class."""
+    client = weaviate.Client(url=WEAVIATE_URL)
+    client.schema.delete_class("Document")
+    # No need to recreate explicitly, next ingest will likely handle it via from_documents
+    # or we can force recreation if needed, but keeping it simple for now.
+    return "Context cleared."
+
 # --- 2. Agent State & Nodes ---
 
 class AgentState(TypedDict):
