@@ -2,7 +2,16 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from app.agent import app_agent, ingest_text
 
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI(title="Local Agentic RAG API")
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/")
+async def read_root():
+    return FileResponse('app/static/index.html')
 
 class QueryRequest(BaseModel):
     question: str
