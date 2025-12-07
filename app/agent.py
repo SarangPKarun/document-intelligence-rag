@@ -45,11 +45,31 @@ def ingest_text(text: str, source: str):
     return f"Ingested {len(docs)} chunks from {source}."
 
 def delete_all_context():
-    """Clears the entire Weaviate 'Document' class."""
+    """Clears the entire Weaviate 'Document' class and recreates it empty."""
     client = weaviate.Client(url=WEAVIATE_URL)
     client.schema.delete_class("Document")
-    # No need to recreate explicitly, next ingest will likely handle it via from_documents
-    # or we can force recreation if needed, but keeping it simple for now.
+    
+    # Recreate the class so queries don't fail (they will just return 0 results)
+    # We define a minimal schema compatible with what LangChain uses.
+    class_obj = {
+        "class": "Document",
+        "description": "A class for RAG documents",
+        "vectorizer": "none", # We provide vectors from LangChain
+        "properties": [
+            {
+                "name": "text",
+                "dataType": ["text"],
+                "description": "The content of the document chunk",
+            },
+             {
+                "name": "source",
+                "dataType": ["text"],
+                "description": "The source filename",
+            },
+        ],
+    }
+    client.schema.create_class(class_obj)
+    
     return "Context cleared."
 
 # --- 2. Agent State & Nodes ---
