@@ -1,0 +1,34 @@
+[
+    {
+        "question": "What is NeRF representing in 3D computer graphics?",
+        "ground_truth": "Neural Radiance Fields (NeRF) represent a cutting-edge technique in 3D computer graphics that uses neural networks to generate novel views of complex 3D scenes."
+    },
+    {
+        "question": "How does NeRF model a scene differently from traditional graphics pipelines?",
+        "ground_truth": "Unlike traditional graphics pipelines that rely on explicit geometry and texture maps, NeRF models learn an implicit volumetric representation of a scene by optimizing a continuous function that maps spatial coordinates and viewing directions to color and volume density."
+    },
+    {
+        "question": "What is volumetric rendering in the context of NeRF?",
+        "ground_truth": "Volumetric rendering in NeRF involves casting a ray from the camera into the scene and sampling it at multiple depths. At each point, the network predicts color and density, and the final pixel color is a weighted integration along the ray."
+    },
+    {
+        "question": "What computational bottleneck is mentioned for NeRF?",
+        "ground_truth": "Training can take hours and rendering each frame requires hundreds of MLP evaluations. This is because NeRF is a data-driven method reliant on multi-view consistency."
+    },
+    {
+        "question": "What is the purpose of positional encoding in NeRF?",
+        "ground_truth": "Positional encoding injects high-frequency functions of input coordinates into the network to help MLPs better represent high-frequency details and overcome their spectral bias toward low-frequency outputs."
+    },
+    {
+        "question": "Mention one application for dynamic scene representations like D-NeRF.",
+        "ground_truth": "Applications include 4D reconstruction, virtual avatars, and telepresence, where both spatial and temporal fidelity are necessary."
+    },
+    {
+        "question": "What challenge does integrating NeRF with traditional graphics tools pose?",
+        "ground_truth": "A major challenge is converting neural representations into mesh-based formats usable in real-time engines."
+    },
+    {
+        "question": "How can NeRFs be used for content creation when coupled with generative models?",
+        "ground_truth": "By coupling NeRFs with GANs or diffusion models, researchers can synthesize plausible 3D content from minimal inputs like single images or text prompts, leveraging learned priors and physical consistency."
+    }
+]
