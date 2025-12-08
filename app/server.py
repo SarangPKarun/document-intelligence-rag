@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from app.agent import app_agent, ingest_text
 import io
-import pdfplumber
+from pypdf import PdfReader
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -29,20 +29,26 @@ async def ingest_document(file: UploadFile = File(...)):
         filename = file.filename.lower()
 
         # -------------------------------
-        # PDF File
+        # PDF File with PyPDF
         # -------------------------------
         if filename.endswith(".pdf"):
+            text = ""
             try:
-                with pdfplumber.open(io.BytesIO(content)) as pdf:
-                    text = ""
-                    for page in pdf.pages:
-                        extracted = page.extract_text()
-                        if extracted:
-                            text += extracted + "\n"
+                pdf = PdfReader(io.BytesIO(content))
+                for page in pdf.pages:
+                    extracted = page.extract_text()
+                    if extracted:
+                        text += extracted + "\n"
             except Exception as extract_err:
                 raise HTTPException(
                     status_code=500, 
-                    detail=f"Error extracting PDF text: {extract_err}"
+                    detail=f"Error reading PDF: {extract_err}"
+                )
+
+            if not text.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="PDF contains no extractable text (might be scanned PDF)."
                 )
 
         # -------------------------------

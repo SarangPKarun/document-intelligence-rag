@@ -31,18 +31,14 @@ def get_vectorstore():
     )
 
 def ingest_text(text: str, source: str):
-    """Ingests raw text into Weaviate."""
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=100)
     docs = text_splitter.create_documents([text], metadatas=[{"source": source}])
-    
-    # Initialize Weaviate and add documents
-    vectorstore = Weaviate.from_documents(
-        docs, 
-        embeddings, 
-        weaviate_url=WEAVIATE_URL, 
-        index_name="Document"
-    )
+
+    vectorstore = get_vectorstore()       # Reuse existing index
+    vectorstore.add_documents(docs)       # 🔥 Append, do NOT recreate index
+
     return f"Ingested {len(docs)} chunks from {source}."
+
 
 def delete_all_context():
     """Clears the entire Weaviate 'Document' class and recreates it empty."""
