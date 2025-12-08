@@ -9,5 +9,4 @@ weaviate-client<4.0.0
 pydantic
 ragas
 pandas
-langchain-openai
-pypdf
+pdfplumber

@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from app.agent import app_agent, ingest_text
-
+import io
+import pdfplumber
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -22,12 +23,43 @@ class QueryResponse(BaseModel):
 
 @app.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
-    """Upload a text file to vector store."""
+    """Upload a text or PDF document to vector store."""
     try:
         content = await file.read()
-        text = content.decode("utf-8")
+        filename = file.filename.lower()
+
+        # -------------------------------
+        # PDF File
+        # -------------------------------
+        if filename.endswith(".pdf"):
+            try:
+                with pdfplumber.open(io.BytesIO(content)) as pdf:
+                    text = ""
+                    for page in pdf.pages:
+                        extracted = page.extract_text()
+                        if extracted:
+                            text += extracted + "\n"
+            except Exception as extract_err:
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Error extracting PDF text: {extract_err}"
+                )
+
+        # -------------------------------
+        # TXT File
+        # -------------------------------
+        elif filename.endswith(".txt"):
+            text = content.decode("utf-8")
+
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail="Unsupported file type. Upload only .pdf or .txt"
+            )
+
         result = ingest_text(text, source=file.filename)
         return {"message": result}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
