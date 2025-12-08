@@ -78,9 +78,31 @@ class AgentState(TypedDict):
 # Node: Retrieve
 def retrieve(state: AgentState):
     print("---RETRIEVING---")
+    
+    # --- HyDe Step ---
+    print("---Generating Hypothetical Document---")
+    llm = ChatOllama(model=LLM_MODEL, base_url=OLLAMA_BASE_URL, temperature=0)
+    
+    hyde_template = """You are an expert AI assistant. 
+    Please write a short, plausible hypothetical passage that directly answers the question below.
+    Do not answer the question directly, but write a passage that *contains* the answer.
+    
+    Question: {question}
+    
+    Hypothetical Passage:"""
+    
+    hyde_prompt = PromptTemplate.from_template(hyde_template)
+    hyde_chain = hyde_prompt | llm | StrOutputParser()
+    
+    hypothetical_doc = hyde_chain.invoke({"question": state["question"]})
+    print(f"Hypothetical Doc: {hypothetical_doc}")
+    
+    # --- Retrieval ---
     vectorstore = get_vectorstore()
     retriever = vectorstore.as_retriever()
-    docs = retriever.invoke(state["question"])
+    
+    # Retrieve using the hypothetical document instead of the raw question
+    docs = retriever.invoke(hypothetical_doc)
     return {"context": [d.page_content for d in docs]}
 
 # Node: Generate Answer
